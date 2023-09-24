@@ -1,6 +1,6 @@
 CREATE DATABASE IF NOT EXISTS pedped;
 
-CREATE TABLE users(
+CREATE TABLE IF NOT EXISTS users(
   user_id BIGINT(20) UNSIGNED NOT NULL,
   name VARCHAR(50) NOT NULL,
   birth_date DATE NOT NULL,
@@ -16,13 +16,12 @@ CREATE TABLE users(
   PRIMARY KEY (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE shops(
+CREATE TABLE IF NOT EXISTS shops(
   shop_id BIGINT(20) UNSIGNED NOT NULL,
   owner_id BIGINT(20) UNSIGNED NOT NULL,
   name VARCHAR(50) NOT NULL,
   description VARCHAR(100) NULL DEFAULT NULL,
   image_shop TEXT NOT NULL DEFAULT 'default-shop-image.png',
-  stars DECIMAL(2,1) UNSIGNED NOT NULL DEFAULT 0,
   shop_type ENUM('PM', 'OM', 'M') NOT NULL DEFAULT 'M',
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   operation_start TIME NOT NULL DEFAULT '07:00:00',
@@ -39,14 +38,14 @@ CREATE TABLE shops(
   CONSTRAINT FK_ShopUser FOREIGN KEY (owner_id) REFERENCES users(user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE admin_shops(
+CREATE TABLE IF NOT EXISTS admin_shops(
   user_id BIGINT(20) UNSIGNED NOT NULL,
   shop_id BIGINT(20) UNSIGNED NOT NULL,
   CONSTRAINT FK_AdminshopUser FOREIGN KEY (user_id) REFERENCES users(user_id),
   CONSTRAINT FK_AdminshopShop FOREIGN KEY (shop_id) REFERENCES shops(shop_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE variants(
+CREATE TABLE IF NOT EXISTS variants(
   variant_id BIGINT(20) UNSIGNED NOT NULL,
   name VARCHAR(50) NOT NULL,
   shop_id BIGINT(20) UNSIGNED NOT NULL,
@@ -54,7 +53,7 @@ CREATE TABLE variants(
   CONSTRAINT FK_VariantsShop FOREIGN KEY (shop_id) REFERENCES shops(shop_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE products(
+CREATE TABLE IF NOT EXISTS products(
   product_id BIGINT(20) UNSIGNED NOT NULL,
   name VARCHAR(50) NOT NULL,
   description VARCHAR(200) NULL DEFAULT NULL,
@@ -67,7 +66,7 @@ CREATE TABLE products(
   CONSTRAINT FK_ProductVariant FOREIGN KEY (variant_id) REFERENCES variants(variant_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE orders(
+CREATE TABLE IF NOT EXISTS orders(
   order_id BIGINT(20) UNSIGNED NOT NULL,
   user_id BIGINT(20) UNSIGNED NOT NULL,
   payment_date DATETIME NULL DEFAULT NULL,
@@ -79,7 +78,7 @@ CREATE TABLE orders(
   CONSTRAINT FK_OrderUser FOREIGN KEY (user_id) REFERENCES users(user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE order_details(
+CREATE TABLE IF NOT EXISTS order_details(
   snapshot_id BIGINT(20) UNSIGNED NOT NULL,
   item_name VARCHAR(50) NOT NULL,
   item_description VARCHAR(200) NULL DEFAULT NULL,
@@ -94,10 +93,18 @@ CREATE TABLE order_details(
   CONSTRAINT FK_OrderdetailOrder FOREIGN KEY (order_id) REFERENCES orders(order_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE sessions(
+CREATE TABLE IF NOT EXISTS sessions(
   user_id BIGINT(20) UNSIGNED NOT NULL,
   token TEXT NOT NULL,
   token_exp DATETIME NOT NULL,
   device_id TEXT NOT NULL,
   CONSTRAINT FK_SessionUser FOREIGN KEY (user_id) REFERENCES users(user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS shop_ratings(
+  user_id BIGINT(20) UNSIGNED NOT NULL,
+  stars DECIMAL(15,2) UNSIGNED NOT NULL DEFAULT 0,
+  shop_id BIGINT(20) UNSIGNED NOT NULL,
+  CONSTRAINT FK_ShopratingUser FOREIGN KEY (user_id) REFERENCES users(user_id),
+  CONSTRAINT FK_ShopratingShop FOREIGN KEY (shop_id) REFERENCES shops(shop_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
