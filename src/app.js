@@ -8,8 +8,6 @@ const DOMAIN = '127.0.0.1';
 app.listen(PORT, DOMAIN, async () => {
   const isDatabaseReady = await checkDatabasePrimary();
   const isRedisReady = await checkRedis();
-  console.info(isDatabaseReady);
-  console.info(isRedisReady);
   logger.info(
     `Database condition : ${isDatabaseReady}, Redis condition : ${isRedisReady}`
   );

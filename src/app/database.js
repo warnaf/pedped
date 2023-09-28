@@ -93,13 +93,14 @@ async function query(sql, params) {
     await connection.end();
     return results;
   } catch (error) {
+    console.info(error);
     emitter.emit('error', error);
   }
 }
 
 async function getConnectionPrimary() {
   try {
-    const connection = await mysql.createConnection(databaseConfig);
+    const connection = await mysql.createConnection(mysqlConfig);
     return connection;
   } catch (error) {
     emitter.emit('error', error);

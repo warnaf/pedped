@@ -8,16 +8,16 @@ const camelCaseConvert = (message) => {
 };
 
 const generateId = () => {
-  const dateNow = moment();
-  const userid =
-    'U-' +
-    dateNow.format('DD') +
-    (Math.floor(Math.random() * 10) + 1) +
-    dateNow.format('MM') +
-    (Math.floor(Math.random() * 10) + 1) +
-    dateNow.format('YYYY');
+  const idLength = 8;
+  const characters = '0123456789';
+  let randomId = '';
 
-  return userid;
+  for (let i = 0; i < idLength; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    randomId += characters.charAt(randomIndex);
+  }
+
+  return parseInt(randomId);
 };
 
 const saveUpdateInnerObject = (extractDatabase, extractInput) => {
