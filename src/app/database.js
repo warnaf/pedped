@@ -1,4 +1,5 @@
 import mysql from 'mysql2/promise';
+import moment from 'moment';
 import redis from 'redis';
 import EventsEmitter from 'events';
 import { logger } from './logging.js';
@@ -12,9 +13,8 @@ const mysqlConfig = {
 };
 
 const redisConfig = {
-  url:
-    process.env['REDISHOST'] ||
-    'redis[s]://[[username][:password]@][host][:port](optional [/db-number]:)',
+  host: process.env['REDISHOST'] || 'localhost',
+  port: process.env['REDISPORT'] || 6379,
 };
 
 const emitter = new EventsEmitter();
@@ -73,12 +73,15 @@ async function redisGet(key, isMap = 1) {
 async function redisSet(key, value, isMap = 1) {
   try {
     const client = redis.createClient();
+    const timeTTL = 120;
     client.on('error', (err) => console.log('Redis Client Error', err));
     await client.connect();
     if (isMap === 1) {
       const result = await client.hSet(key, value);
+      client.expireAt(key, timeTTL);
     } else {
       const result = await client.set(key, value);
+      client.expireAt(key, timeTTL);
     }
     return result;
   } catch (error) {

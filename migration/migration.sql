@@ -71,8 +71,8 @@ CREATE TABLE IF NOT EXISTS shops(
   CONSTRAINT FK_ShopUser FOREIGN KEY (owner_id) REFERENCES users(user_id),
   CONSTRAINT FK_ShopProvince FOREIGN KEY (provinces_id) REFERENCES provinces(id),
   CONSTRAINT FK_ShopRegencie FOREIGN KEY (regencies_id) REFERENCES regencies(id),
-  CONSTRAINT FK_ShopDistrict FOREIGN KEY (villages_id) REFERENCES districts(id),
-  CONSTRAINT FK_ShopVillage FOREIGN KEY (districts_id) REFERENCES villages(id)
+  CONSTRAINT FK_ShopDistrict FOREIGN KEY (districts_id) REFERENCES districts(id),
+  CONSTRAINT FK_ShopVillage FOREIGN KEY (villages_id) REFERENCES villages(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS admin_shops(
