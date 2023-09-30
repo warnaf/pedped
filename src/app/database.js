@@ -43,8 +43,9 @@ async function checkDatabasePrimary() {
 
 async function checkRedis() {
   try {
-    const client = redis.createClient(redisConfig);
+    const client = redis.createClient();
     client.on('error', (err) => console.log('Redis Client Error', err));
+    await client.connect();
     const result = await client.isReady();
     return result;
   } catch (error) {
@@ -55,9 +56,9 @@ async function checkRedis() {
 
 async function redisGet(key, isMap = 1) {
   try {
-    const client = redis.createClient(redisConfig);
-    client.on('error', (err) => console.log('Redis Client Error', err));
+    const client = redis.createClient();
     await client.connect();
+    client.on('error', (err) => console.log('Redis Client Error', err));
     if (isMap === 1) {
       const result = await client.hGetAll(key);
       return JSON.stringify(result, null, 2);
@@ -74,16 +75,17 @@ async function redisSet(key, value, isMap = 1) {
   try {
     const client = redis.createClient();
     const timeTTL = 120;
-    client.on('error', (err) => console.log('Redis Client Error', err));
     await client.connect();
+    client.on('error', (err) => console.log('Redis Client Error', err));
     if (isMap === 1) {
-      const result = await client.hSet(key, value);
+      result = await client.hSet(key, value);
       client.expireAt(key, timeTTL);
+      return result;
     } else {
-      const result = await client.set(key, value);
+      result = await client.set(key, value);
       client.expireAt(key, timeTTL);
+      return result;
     }
-    return result;
   } catch (error) {
     emitter.emit('error', error);
   }
