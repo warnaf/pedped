@@ -49,7 +49,7 @@ async function checkRedis() {
     });
     await client.connect();
     await redisSet('test', 'pong', 0);
-    const result = redisGet('test', 0) === 'pong' ? true : false;
+    const result = (await redisGet('test', 0)) === 'pong' ? true : false;
     await client.disconnect();
     return result;
   } catch (error) {
