@@ -1,5 +1,4 @@
 import mysql from 'mysql2/promise';
-import moment from 'moment';
 import redis from 'redis';
 import EventsEmitter from 'events';
 import { logger } from './logging.js';
@@ -33,7 +32,7 @@ emitter.addListener('query', (e) => {
 
 async function checkDatabasePrimary() {
   try {
-    const result = await query('select 1');
+    await query('select 1');
     return true;
   } catch (error) {
     emitter.emit('error', error);
@@ -44,9 +43,13 @@ async function checkDatabasePrimary() {
 async function checkRedis() {
   try {
     const client = redis.createClient();
-    client.on('error', (err) => console.log('Redis Client Error', err));
+    client.on('error', (err) => {
+      console.log('Redis Client Error', err);
+      return false;
+    });
     await client.connect();
     const result = await client.isReady();
+    await client.disconnect();
     return result;
   } catch (error) {
     emitter.emit('error', error);
@@ -57,13 +60,15 @@ async function checkRedis() {
 async function redisGet(key, isMap = 1) {
   try {
     const client = redis.createClient();
-    await client.connect();
     client.on('error', (err) => console.log('Redis Client Error', err));
+    await client.connect();
     if (isMap === 1) {
       const result = await client.hGetAll(key);
+      await client.disconnect();
       return JSON.stringify(result, null, 2);
     } else {
       const result = await client.get(key);
+      await client.disconnect();
       return result;
     }
   } catch (error) {
@@ -71,19 +76,20 @@ async function redisGet(key, isMap = 1) {
   }
 }
 
-async function redisSet(key, value, isMap = 1) {
+async function redisSet(key, value, isMap = 1, timeTTL = 120) {
   try {
     const client = redis.createClient();
-    const timeTTL = 120;
-    await client.connect();
     client.on('error', (err) => console.log('Redis Client Error', err));
+    await client.connect();
     if (isMap === 1) {
       result = await client.hSet(key, value);
       client.expireAt(key, timeTTL);
+      await client.disconnect();
       return result;
     } else {
       result = await client.set(key, value);
       client.expireAt(key, timeTTL);
+      await client.disconnect();
       return result;
     }
   } catch (error) {
