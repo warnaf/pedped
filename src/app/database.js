@@ -48,7 +48,8 @@ async function checkRedis() {
       return false;
     });
     await client.connect();
-    const result = await client.isReady();
+    await redisSet('test', 'pong', 0);
+    const result = redisGet('test', 0) === 'pong' ? true : false;
     await client.disconnect();
     return result;
   } catch (error) {
@@ -65,7 +66,7 @@ async function redisGet(key, isMap = 1) {
     if (isMap === 1) {
       const result = await client.hGetAll(key);
       await client.disconnect();
-      return JSON.stringify(result, null, 2);
+      return JSON.parse(result, null, 2);
     } else {
       const result = await client.get(key);
       await client.disconnect();

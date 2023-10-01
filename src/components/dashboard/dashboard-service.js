@@ -22,7 +22,10 @@ const recomendation = async () => {
   GROUP BY pds.product_id
   ORDER BY shop_rating DESC`;
   const recomendationResult = await query(recomendationStatement);
-  return recomendationResult;
+  return {
+    isFromRedis: false,
+    value: recomendationResult,
+  };
 };
 
 const recomendationWithRedis = async () => {
@@ -51,10 +54,15 @@ const recomendationWithRedis = async () => {
   if (checkDataInRedis === null) {
     const recomendationResult = await query(recomendationStatement);
     redisSet(redisKey, recomendation);
-    return recomendationResult;
+    return {
+      isFromRedis: false,
+      value: recomendationResult,
+    };
   }
-  const recomendationResult = await query(recomendationStatement);
-  return recomendationResult;
+  return {
+    isFromRedis: true,
+    value: checkDataInRedis,
+  };
 };
 
 export default { recomendation, recomendationWithRedis };
