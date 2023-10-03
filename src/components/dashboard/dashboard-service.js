@@ -53,7 +53,7 @@ const recomendationWithRedis = async () => {
   const checkDataInRedis = redisGet(redisKey);
   if (checkDataInRedis === null) {
     const recomendationResult = await query(recomendationStatement);
-    redisSet(redisKey, recomendation);
+    await redisSet(redisKey, recomendationResult);
     return {
       isFromRedis: false,
       value: recomendationResult,

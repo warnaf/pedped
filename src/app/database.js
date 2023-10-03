@@ -42,15 +42,8 @@ async function checkDatabasePrimary() {
 
 async function checkRedis() {
   try {
-    const client = redis.createClient();
-    client.on('error', (err) => {
-      console.log('Redis Client Error', err);
-      return false;
-    });
-    await client.connect();
-    await redisSet('test', 'pong', 0);
-    const result = (await redisGet('test', 0)) === 'pong' ? true : false;
-    await client.disconnect();
+    await redisSet('test', 'pong');
+    const result = (await redisGet('test')) === 'pong' ? true : false;
     return result;
   } catch (error) {
     emitter.emit('error', error);
@@ -58,41 +51,28 @@ async function checkRedis() {
   }
 }
 
-async function redisGet(key, isMap = 1) {
+async function redisGet(key) {
   try {
     const client = redis.createClient();
     client.on('error', (err) => console.log('Redis Client Error', err));
     await client.connect();
-    if (isMap === 1) {
-      const result = await client.hGetAll(key);
-      await client.disconnect();
-      return JSON.parse(result, null, 2);
-    } else {
-      const result = await client.get(key);
-      await client.disconnect();
-      return result;
-    }
+    const result = await client.get(key);
+    await client.disconnect();
+    return JSON.parse(result);
   } catch (error) {
     emitter.emit('error', error);
   }
 }
 
-async function redisSet(key, value, isMap = 1, timeTTL = 120) {
+async function redisSet(key, value, timeTTL = 120) {
   try {
     const client = redis.createClient();
     client.on('error', (err) => console.log('Redis Client Error', err));
     await client.connect();
-    if (isMap === 1) {
-      result = await client.hSet(key, value);
-      client.expireAt(key, timeTTL);
-      await client.disconnect();
-      return result;
-    } else {
-      result = await client.set(key, value);
-      client.expireAt(key, timeTTL);
-      await client.disconnect();
-      return result;
-    }
+    const result = await client.set(key, JSON.stringify(value));
+    client.expireAt(key, timeTTL);
+    await client.disconnect();
+    return result;
   } catch (error) {
     emitter.emit('error', error);
   }
