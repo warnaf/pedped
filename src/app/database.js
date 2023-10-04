@@ -57,7 +57,7 @@ async function redisGet(key) {
     client.on('error', (err) => console.log('Redis Client Error', err));
     await client.connect();
     const result = await client.get(key);
-    await client.disconnect();
+    await client.quit();
     return JSON.parse(result);
   } catch (error) {
     emitter.emit('error', error);
@@ -69,9 +69,10 @@ async function redisSet(key, value, timeTTL = 120) {
     const client = redis.createClient();
     client.on('error', (err) => console.log('Redis Client Error', err));
     await client.connect();
-    const result = await client.set(key, JSON.stringify(value));
-    client.expireAt(key, timeTTL);
-    await client.disconnect();
+    const result = await client.set(key, JSON.stringify(value), {
+      EX: timeTTL,
+    });
+    await client.quit();
     return result;
   } catch (error) {
     emitter.emit('error', error);

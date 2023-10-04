@@ -50,7 +50,7 @@ const recomendationWithRedis = async () => {
     WHERE odr.status = 'done'
     GROUP BY pds.product_id
     ORDER BY shop_rating DESC`;
-  const checkDataInRedis = redisGet(redisKey);
+  const checkDataInRedis = await redisGet(redisKey);
   if (checkDataInRedis === null) {
     const recomendationResult = await query(recomendationStatement);
     await redisSet(redisKey, recomendationResult);
